@@ -1,0 +1,22 @@
+{
+  "name": "organic-expressServer",
+  "version": "0.3.3",
+  "main": "index.js",
+  "scripts": {
+    "test": "jasmine-node ./tests/"
+  },
+  "dependencies": {
+    "organic": "0.1.1",
+    "express": "3.4.0",
+    "connect-mongo": "0.2.0",
+    "connect-gzip": "0.1.5",
+    "i18next": "1.5.10",
+    "underscore": "1.4.4"
+  },
+  "devDependencies": {
+    "jasmine-node": "latest",
+    "request": "latest",
+    "shelljs": "latest"
+  },
+  "license": "MIT"
+}
