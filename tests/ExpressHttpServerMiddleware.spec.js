@@ -45,8 +45,8 @@ describe("HttpServer", function(){
 
   it("should emit HttpServer chemical in plasma once ready", function(next){
 
-    plasma.once("HttpServer", function(chemical){
-      expect(chemical.data).toBe(httpServer);
+    plasma.once("ExpressServer", function(chemical){
+      expect(chemical.data).toBe(httpServer.app);
       next();
     });
 
