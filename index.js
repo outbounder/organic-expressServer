@@ -27,6 +27,8 @@ module.exports = function ExpressHttpServer(plasma, config){
     if(config.log)
       console.log('HttpServer running at http://127.0.0.1:'+config.port+'/');  
     self.emit(new Chemical(config.emitReady || "ExpressServer", self.app));
+    if(config.emitServer)
+      self.emit(new Chemical(config.emitServer, self.server))
   });
 }
 
