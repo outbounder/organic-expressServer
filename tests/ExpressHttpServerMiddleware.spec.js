@@ -6,9 +6,9 @@ var fs = require("fs");
 var _ = require("underscore");
 
 describe("HttpServer", function(){
-  
+
   var plasma = new Plasma();
-  
+
   var httpServer;
   var serverConfig = {
     "port": 8090,
@@ -19,34 +19,17 @@ describe("HttpServer", function(){
       { "source": "expressMiddleware/bodyParser", "uploadDir": "tests/data/" },
       { "source": "expressMiddleware/handleI18Next", "localesDir": "tests/data/" },
       { "source": "expressMiddleware/staticFolder", "staticDir": "tests/data/" }
-    ],
-    "routes": {
-      "/upload": {
-        type: "EchoIncomingHttpRequest"
-      },
-      "/post": {
-        type: "EchoIncomingHttpRequest"
-      }
-    }
+    ]
   };
 
-  plasma.on("EchoIncomingHttpRequest", function(chemical, sender, callback){
-    chemical.data = _.extend(chemical.data || {}, {
-      body: chemical.req.body,
-      params: chemical.req.params,
-      files: chemical.req.files
-    });
-    callback(chemical);
-  });
-
-  plasma.on(Error, function(e){
-    console.log(e);
-  });
+  var sendUploadResultsMockup = function(req, res, next){
+    res.send(req.files)
+  }
 
   it("should emit HttpServer chemical in plasma once ready", function(next){
-
     plasma.once("ExpressServer", function(chemical){
       expect(chemical.data).toBe(httpServer.app);
+      chemical.data.post("/upload", sendUploadResultsMockup)
       next();
     });
 
@@ -57,38 +40,25 @@ describe("HttpServer", function(){
   it("should receive post requests", function(next){
     request.post("http://127.0.0.1:"+serverConfig.port+"/post", {form:{myData: "value"}}, function(err, res, body){
       expect(body).toBeDefined();
-      body = JSON.parse(body);
-      expect(body.body).toBeDefined();
-      expect(body.body.myData).toBe("value");
       next();
     });
   });
 
   it("should serve files from public folder", function(next){
-    request("http://127.0.0.1:"+serverConfig.port+"/api/MockHandler.js", function(err, res, body){
-      expect(body).toContain("callback");
-      request("http://127.0.0.1:"+serverConfig.port+"/file.txt", function(err, res, body){
-        expect(body).toBe("content");
-        next();
-      });
+    request("http://127.0.0.1:"+serverConfig.port+"/file.txt", function(err, res, body){
+      expect(body).toBeDefined();
+      next();
     });
   });
 
   it("should handle uploading of files to public folder", function(next){
     var r = request.post('http://127.0.0.1:'+serverConfig.port+'/upload', function(err, res, body){
+      body = JSON.parse(body)
       expect(body).toBeDefined();
-      body = JSON.parse(body);
-      expect(body.body).toBeDefined();
-      expect(body.body.my_field).toBeDefined();
-      expect(body.body.my_buffer).toBeDefined();
-      expect(body.files.my_file).toBeDefined();
-      expect(body.files.my_file.path).toContain("tests/data/");
-      fs.unlink(body.files.my_file.path);
+      fs.unlinkSync(body.my_file.path)
       next();
     });
     var form = r.form()
-    form.append('my_field', 'my_value')
-    form.append('my_buffer', new Buffer([1, 2, 3]))
     form.append('my_file', fs.createReadStream(path.join(__dirname, './data/file.txt')));
   });
 

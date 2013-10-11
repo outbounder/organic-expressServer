@@ -1,59 +1,74 @@
+# organic-expressserver
 
-This organelle wraps expressjs server [http://expressjs.com/](http://expressjs.com/) v3.x.x and starts it upon construction. 
+The organelle wraps expressjs server [http://expressjs.com/](http://expressjs.com/) v3.x.x
 
-It is general purpose membrane hole for handling any incoming http requests.
+## DNA structure and defaults
 
-organel | dna & defaults:
+    {
+      "log": false,
+      "port": 1337 || Number,
+      "emitReady": "ExpressServer" || String,
+      "emitServer": String,
+      "middleware": Array,
+      "afterware": Array
+    }
 
-* middleware - [ `Middleware Object` ]
+### "middleware" and "afterware" items
 
-  #### Middleware Object 
-  
-  * `String` - full path to Middlware source code or
+In general they are two forms:
 
-            {
-             source: full path to Middleware source code
-             ... `config` of Middlware
-            }
+* As String
 
-  #### middleware source code example
+    "path/to/middelware/module"
 
-        module.exports = function(`config`, httpServer){
-         var app = httpServer.app; // express app object
-         return function(req, res, next) {} // optional, will be passed to app.use(fn)
-        }
+* As Object
 
-* afterware - [ `Middleware Object` ]
+    {
+      "source": "path/to/middleware/module",
+      ... // configuration options
+    }
 
-  see `middleware` attribute for definition of `Middleware Object`
+#### thereafter middleware module has the following signature/interface
 
-* routes - { `path: Route object` }
+    module.exports = function(options, expressServer) {
+       var plasma = expressServer.plasma;
+       var expressApp = expressServer.app;
+       var httpServer = expressServer.server;
+       // .... either do something with above without returning anything
+       // or
+       // return middleware function to be passed to express app.use
+       return function(req, res, next) {
+         // middleware implementation
+       }
+    }
 
-  ### path: `Route object`
+- Organelle loads synchroniously all middleware modules.
+- Those of them which return function will be assigned respectively as middleware function to express app.
+- Middleware items are placed before express app router and afterware items are placed after the router.
 
-  * `path` is String passed to `app.all(path, fn)`
-  * `Route object` is Chemical to be emitted in plasma including:
-    * `req` express object
-    * `res` express object
-  
-    expected callback chemical will trigger `res.send` based on returned:
-    
-      * `content-type` - String
-      * `data` - mixed
-      * `statusCode` - Number, defaults to `200`
+## Emits chemicals when
 
-* notfoundRoute - `Route object`
+### started listening
 
-  see `routes` attribute for Route object details. This simply adds middleware to express server emitting chemical with given route object definition.
+Emitted with Chemical type value of `emitReady`.
+Chemical's structure:
 
-* log - `false`
-* port - `1337`
+    {
+      "type": `emitReady`,
+      "data": ExpressApp
+    }
 
+Optionally if `emitServer` is defined, emits Chemical type with value of `emitServer`.
+Chemical's structure:
 
-# incoming | kill
+    {
+      "type": `emitServer`,
+      "data": HttpServer
+    }
 
-Closes the underlying express app.
+## Reacts to chemicals
 
-# outgoing | HttpServer
+### type: "kill"
 
-* data - express App instance
+Closes underlaying httpServer instance.
+The organelles doesn't aggragates the chemical and leaves it passing forward.

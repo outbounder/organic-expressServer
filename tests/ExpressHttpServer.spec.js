@@ -3,28 +3,20 @@ var Plasma = require("organic").Plasma;
 var request = require("request");
 
 describe("HttpServer", function(){
-  
+
   var plasma = new Plasma();
-  
+
   var httpServer;
   var serverConfig = {
-    "port": 8080,
-    "routes": {
-      "/": {
-        "type": "step1"
-      }
-    },
-    "notfoundRoute": {
-      "type": "notFound"
-    }
+    "port": 8080
   };
-  var mockRequest = { url: "myRequest" };
-  var mockResponse = { send: function(){} };
 
-  it("should emit HttpServer chemical in plasma once ready", function(next){
+  it("should emit ExpressServer chemical in plasma once ready", function(next){
 
     plasma.once("ExpressServer", function(chemical){
       expect(chemical.data).toBe(httpServer.app);
+      plasma.emit("kill");
+      expect(httpServer.closed).toBe(true);
       next();
     });
 
@@ -32,30 +24,18 @@ describe("HttpServer", function(){
     expect(httpServer).toBeDefined();
   });
 
-  it("should emit chemical 1 from chain on incoming request", function(next){
-    plasma.once("step1", function(chemical){
-      expect(chemical.req).toBeDefined();
-      expect(chemical.req.url).toBe("myRequest");
-      next();
-    });
-    // mock req & res
-    httpServer.handleIncomingRequest(serverConfig.routes["/"], mockRequest, mockResponse);
-  });
+  it("should emit HttpServer chemical in plasma once ready", function(next){
 
-  it("should emit chemical notfound from chain on not found route for request", function(next){
-    plasma.once("notFound", function(chemical){
-      expect(chemical.req).toBeDefined();
-      expect(chemical.req.url).toBe("myRequest");
+    plasma.once("HttpServer", function(chemical){
+      expect(chemical.data).toBe(httpServer.server);
+      plasma.emit("kill");
+      expect(httpServer.closed).toBe(true);
       next();
     });
 
-    // mock req & res
-    httpServer.handleIncomingRequest(serverConfig.notfoundRoute, mockRequest, mockResponse);
-  });
-
-  it("should close successfully", function(){
-    plasma.emit("kill");
-    expect(httpServer.closed).toBe(true);
+    serverConfig.emitServer = "HttpServer"
+    httpServer = new HttpServer(plasma, serverConfig);
+    expect(httpServer).toBeDefined();
   });
 
 });
