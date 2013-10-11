@@ -45,6 +45,7 @@ In general they are two forms:
 - Organelle loads synchroniously all middleware modules.
 - Those of them which return function will be assigned respectively as middleware function to express app.
 - Middleware items are placed before express app router and afterware items are placed after the router.
+- Note that paths to middlware modules are relative to the current working directory.
 
 ## Emits chemicals when
 
