@@ -1,7 +1,7 @@
 var express = require("express");
 var MongoStore = require('connect-mongo')(express);
 
-module.exports = function(config, httpServer) {
+module.exports = function(config) {
   if(!config.cookie_secret || !config.dbname)
     throw new Error("cookie_secret or dbname in config are missing");
   
@@ -9,7 +9,7 @@ module.exports = function(config, httpServer) {
     db: config.dbname
   });
 
-  httpServer.on("kill", function(){
+  this.on("kill", function(){
     store.db.close();
     return false;
   });

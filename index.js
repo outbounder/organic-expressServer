@@ -47,7 +47,6 @@ module.exports.prototype.mountXware = function(definitions){
   _.each(definitions, function(definition){
 
     var middlewareSource = definition.source || definition;
-    var middlewareConfig = definition.source?definition:{};
     if(middlewareSource.indexOf("/") !== 0 || middlewareSource.indexOf(":\\") != 1)
       middlewareSource = process.cwd()+"/"+middlewareSource;
 
@@ -56,12 +55,9 @@ module.exports.prototype.mountXware = function(definitions){
     try {
       var middlewareBuilder = require(middlewareSource);
 
-      var middlewareFunc
-      if(middlewareBuilder.length != 3)
-        middlewareFunc = middlewareBuilder(middlewareConfig, self)
-      else
-        middlewareFunc = middlewareBuilder
-      
+      var middlewareFunc = middlewareBuilder
+      if(definition.source && definition.arguments)
+        middlewareFunc = middlewareBuilder.apply(self, definition.arguments)
       if(middlewareFunc)
         self.app.use(middlewareFunc);
     } catch(err){

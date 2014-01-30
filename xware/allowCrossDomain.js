@@ -1,4 +1,4 @@
-module.exports = function(config, httpServer){
+module.exports = function(config){
   return function(res, req, next) {
     res.header('Access-Control-Allow-Credentials', true);
     res.header('Access-Control-Allow-Origin', config.allowOrigin || (req.headers?req.headers.origin:""));

@@ -13,22 +13,33 @@ describe("HttpServer", function(){
   var serverConfig = {
     "port": 8090,
     "middleware": [
-      "node_modules/express/node_modules/connect/lib/middleware/cookieParser",
-      "xware/allowCrossDomain",
-      { "source": "xware/mongoSessions", "dbname": "test-webcell", "cookie_secret": "test" },
-      { "source": "xware/bodyParser", "uploadDir": "tests/data/" },
-      { "source": "xware/staticFolder", "staticDir": "tests/data/" }
+      {
+        "source": "node_modules/express/node_modules/connect/lib/middleware/cookieParser",
+        "arguments": ["secret"]
+      },
+      { 
+        "source": "node_modules/express/node_modules/connect/lib/middleware/bodyParser",
+        "arguments": []
+      },
+      {
+        "source": "xware/allowCrossDomain",
+        "arguments": [],
+      },
+      { 
+        "source": "xware/mongoSessions", 
+        "arguments": [
+          { "dbname": "test-webcell", "cookie_secret": "test" } 
+        ]
+      }
     ]
   };
-
-  var sendUploadResultsMockup = function(req, res, next){
-    res.send(req.files)
-  }
 
   it("should emit HttpServer chemical in plasma once ready", function(next){
     plasma.once("ExpressServer", function(chemical){
       expect(chemical.data).toBe(httpServer.app);
-      chemical.data.post("/upload", sendUploadResultsMockup)
+      chemical.data.post("/post", function(req, res, next){
+        res.send(req)
+      })
       next();
     });
 
@@ -48,17 +59,6 @@ describe("HttpServer", function(){
       expect(body).toBeDefined();
       next();
     });
-  });
-
-  it("should handle uploading of files to public folder", function(next){
-    var r = request.post('http://127.0.0.1:'+serverConfig.port+'/upload', function(err, res, body){
-      body = JSON.parse(body)
-      expect(body).toBeDefined();
-      fs.unlinkSync(body.my_file.path)
-      next();
-    });
-    var form = r.form()
-    form.append('my_file', fs.createReadStream(path.join(__dirname, './data/file.txt')));
   });
 
   it("should kill", function(){

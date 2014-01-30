@@ -1,4 +1,4 @@
-# organic-expressserver
+# organic-expressserver v0.4.0
 
 The organelle wraps expressjs server [http://expressjs.com/](http://expressjs.com/) v3.x.x
 
@@ -18,25 +18,19 @@ The organelle wraps expressjs server [http://expressjs.com/](http://expressjs.co
 
 ### "middleware" and "afterware" items
 
-In general they are two forms:
-
-* As String
-
-        "path/to/middelware/module"
-
-* As Object
-
         {
           "source": "path/to/middleware/module",
-          ... // configuration options
+          "arguments": Array
         }
+
+  * `arguments` are applied to middleware module with context of the organelle
 
 #### thereafter middleware module has the following signature/interface
 
-    module.exports = function(options, expressServer) {
-       var plasma = expressServer.plasma;
-       var expressApp = expressServer.app;
-       var httpServer = expressServer.server;
+    module.exports = function(/* arguments */) {
+       var plasma = this.plasma;
+       var expressApp = this.app;
+       var httpServer = this.server;
        // .... either do something with above without returning anything
        // or
        // return middleware function to be passed to express app.use
@@ -83,20 +77,23 @@ The organelles doesn't aggragates the chemical and leaves it passing forward.
     {
       "port": 8090,
       "middleware": [
-        "node_modules/express/node_modules/connect/lib/middleware/cookieParser",
-        "xware/allowCrossDomain",
+        {
+          "source": "node_modules/express/node_modules/connect/lib/middleware/cookieParser",
+          "arguments": ["secret"]
+        },
+        { 
+          "source": "node_modules/express/node_modules/connect/lib/middleware/bodyParser",
+          "arguments": []
+        },
+        {
+          "source": "xware/allowCrossDomain",
+          "arguments": [],
+        }
         { 
           "source": "xware/mongoSessions", 
-          "dbname": "test-webcell", 
-          "cookie_secret": "test" 
-        },
-        { 
-          "source": "xware/bodyParser", 
-          "uploadDir": "tests/data/" 
-        },
-        { 
-          "source": "xware/staticFolder", 
-          "staticDir": "tests/data/" 
+          "arguments": [
+            { "dbname": "test-webcell", "cookie_secret": "test" } 
+          ]
         }
       ]
-    };
+    }

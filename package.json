@@ -1,6 +1,6 @@
 {
   "name": "organic-expressserver",
-  "version": "0.3.7",
+  "version": "0.4.0",
   "main": "index.js",
   "scripts": {
     "test": "jasmine-node ./tests/"
@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "jasmine-node": "latest",
-    "express": "3.4.0",
+    "express": "latest",
     "request": "latest",
     "shelljs": "latest"
   },
