@@ -32,7 +32,7 @@ module.exports.prototype.listen = function(){
   var self = this
   this.server = this.app.listen(this.config.port, function(){
     if(self.config.log)
-      console.log('ExpressHttpServer running at', config.port);
+      console.log('ExpressHttpServer running at', self.config.port);
     self.emit(new Chemical(self.config.emitReady || "ExpressServer", self.app));
     if(self.config.emitServer)
       self.emit(new Chemical(self.config.emitServer || "HttpServer", self.server))
