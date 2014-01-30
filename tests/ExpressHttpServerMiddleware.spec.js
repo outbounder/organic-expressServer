@@ -13,12 +13,11 @@ describe("HttpServer", function(){
   var serverConfig = {
     "port": 8090,
     "middleware": [
-      "expressMiddleware/cookieParser",
-      "expressMiddleware/allowCrossDomain",
-      { "source": "expressMiddleware/handleMongoSession", "dbname": "test-webcell", "cookie_secret": "test" },
-      { "source": "expressMiddleware/bodyParser", "uploadDir": "tests/data/" },
-      { "source": "expressMiddleware/handleI18Next", "localesDir": "tests/data/" },
-      { "source": "expressMiddleware/staticFolder", "staticDir": "tests/data/" }
+      "node_modules/express/node_modules/connect/lib/middleware/cookieParser",
+      "xware/allowCrossDomain",
+      { "source": "xware/mongoSessions", "dbname": "test-webcell", "cookie_secret": "test" },
+      { "source": "xware/bodyParser", "uploadDir": "tests/data/" },
+      { "source": "xware/staticFolder", "staticDir": "tests/data/" }
     ]
   };
 
